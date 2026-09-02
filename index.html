@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Data Harian Kendaraan Pool</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f2f2f2;
+            color: #222;
+        }
+
+        .app {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* ================================
+           HEADER
+        ================================ */
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 15px;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        }
+
+        .company h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .company p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: #777;
+        }
+
+        /* ================================
+           CONTROL
+        ================================ */
+
+        .control-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-end;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field.search-field {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .search-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .field select,
+        .field input {
+            height: 38px;
+            padding: 0 10px;
+
+            border: 1px solid #bbb;
+            border-radius: 6px;
+
+            background: white;
+        }
+
+        #searchNopol,
+        #paymentNopol {
+            text-transform: uppercase;
+        }
+
+        /* ================================
+           BUTTON
+        ================================ */
+
+        .btn {
+            height: 38px;
+            padding: 0 15px;
+
+            border: 0;
+            border-radius: 6px;
+
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-add {
+            background: #00b894;
+            color: white;
+        }
+
+        .btn-refresh {
+            background: #444;
+            color: white;
+        }
+
+        .btn-print {
+            background: #f1c40f;
+            color: #222;
+        }
+
+        /* ================================
+           REPORT
+        ================================ */
+
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        }
+
+        .report-title {
+            text-align: center;
+
+            font-size: 22px;
+            font-weight: bold;
+
+            text-decoration: underline;
+
+            margin-bottom: 15px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            min-width: 900px;
+
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #333;
+
+            padding: 6px 5px;
+
+            font-size: 12px;
+            line-height: 1.2;
+
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+
+        .report-table th {
+            background: #ffff00;
+            font-weight: bold;
+        }
+
+        .report-table tbody tr.nopol-group-odd {
+            background: #ffffff;
+        }
+
+        .report-table tbody tr.nopol-group-even {
+            background: #e1e1e1;
+        }
+
+        .date-cell {
+            width: 150px;
+        }
+
+        .nopol-cell {
+            width: 130px;
+        }
+
+        .money-cell {
+            width: 120px;
+        }
+
+        .km-cell {
+            width: 100px;
+        }
+
+        .ket-cell {
+            width: auto;
+        }
+
+        .action-cell {
+            width: 90px;
+        }
+
+        .action-btn {
+            border: 0;
+
+            padding: 4px 7px;
+
+            border-radius: 4px;
+
+            cursor: pointer;
+
+            font-size: 11px;
+
+            margin: 1px;
+        }
+
+        .update-btn {
+            background: #e67e22;
+            color: white;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #777;
+        }
+
+        /* ================================
+           MODAL
+        ================================ */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+
+            background: rgba(0, 0, 0, .55);
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9999;
+
+            padding: 15px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 550px;
+
+            background: white;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            border: 0;
+
+            background: #eee;
+
+            width: 32px;
+            height: 32px;
+
+            border-radius: 50%;
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+
+            gap: 5px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 40px;
+
+            border: 1px solid #bbb;
+            border-radius: 6px;
+
+            padding: 0 10px;
+
+            font-size: 14px;
+        }
+
+        .modal-footer {
+            display: flex;
+
+            justify-content: flex-end;
+
+            gap: 8px;
+
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            background: #ddd;
+        }
+
+        .btn-save {
+            background: #00b894;
+            color: white;
+        }
+
+        /* ================================
+           LOADING
+        ================================ */
+
+        .loading {
+            position: fixed;
+            inset: 0;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255, 255, 255, .7);
+
+            z-index: 10000;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-box {
+            background: white;
+
+            padding: 20px 30px;
+
+            border-radius: 10px;
+
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .2);
+
+            font-weight: bold;
+        }
+
+        /* ================================
+           MOBILE
+        ================================ */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 8px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .control-card {
+                align-items: stretch;
+            }
+
+            .field {
+                width: 100%;
+            }
+
+            .field select,
+            .field input,
+            .btn {
+                width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+        }
+
+        /* ================================
+           PRINT
+        ================================ */
+
+        @media print {
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 6mm;
+            }
+
+            html,
+            body {
+                width: 100%;
+
+                margin: 0;
+                padding: 0;
+
+                background: white;
+            }
+
+            .app {
+                width: 100%;
+                max-width: none;
+
+                margin: 0;
+            }
+
+            .header,
+            .control-card,
+            .modal,
+            .loading {
+                display: none !important;
+            }
+
+            .report-card {
+                width: 100%;
+
+                margin: 0;
+                padding: 0;
+
+                border: 0;
+
+                box-shadow: none;
+            }
+
+            .report-title {
+                font-size: 16px;
+
+                margin: 0 0 8px;
+
+                line-height: 1.2;
+            }
+
+            .table-wrapper {
+                width: 100%;
+
+                overflow: visible !important;
+            }
+
+            .report-table {
+                width: 100% !important;
+
+                min-width: 0 !important;
+                max-width: none !important;
+
+                table-layout: auto !important;
+
+                border-collapse: collapse;
+            }
+
+            .action-cell,
+            .report-table td:last-child,
+            .report-table th:last-child {
+                display: none !important;
+            }
+
+            .report-table th,
+            .report-table td {
+                font-size: 9px !important;
+
+                line-height: 1.2 !important;
+
+                padding: 4px 3px !important;
+
+                color: #000 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- ==========================================
+             HEADER
+        ========================================== -->
+
+        <div class="header">
+
+            <div class="company">
+
+                <h1>
+                    JUMADI MAYAHAN
+                </h1>
+
+                <p>
+                    PT.JASA MANDIRI TECHGRAHA
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             CONTROL
+        ========================================== -->
+
+        <div class="control-card">
+
+            <div class="search-group">
+
+                <div class="field search-field">
+
+                    <label for="searchNopol">
+                        Cari Nopol
+                    </label>
+
+                    <input
+                        type="text"
+                        id="searchNopol"
+                        placeholder="Contoh: B 1234 ABC"
+                        oninput="toUpperCaseInput(this); applySearch();"
+                    >
+
+                </div>
+
+
+                <div class="field search-field">
+
+                    <label for="searchDate">
+                        Cari Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="searchDate"
+                        oninput="applySearch()"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="btn btn-refresh"
+                onclick="loadData()"
+            >
+                Refresh
+            </button>
+
+
+            <button
+                class="btn btn-add"
+                onclick="openPaymentModal()"
+            >
+                + Input Data
+            </button>
+
+
+            <button
+                class="btn btn-print"
+                onclick="triggerPrint()"
+            >
+                Print / PDF
+            </button>
+
+        </div>
+
+
+        <!-- ==========================================
+             REPORT
+        ========================================== -->
+
+        <div class="report-card">
+
+            <div class="report-title">
+                DATA HARIAN KENDARAAN POOL
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th class="date-cell">
+                                Tanggal
+                            </th>
+
+                            <th class="nopol-cell">
+                                Nopol
+                            </th>
+
+                            <th class="money-cell">
+                                BBM
+                            </th>
+
+                            <th class="km-cell">
+                                KM In
+                            </th>
+
+                            <th class="km-cell">
+                                KM Out
+                            </th>
+
+                            <th class="ket-cell">
+                                Keterangan
+                            </th>
+
+                            <th class="action-cell">
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="reportBody">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="empty"
+                            >
+                                Memuat data...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         INPUT MODAL
+    ========================================== -->
+
+    <div
+        id="paymentModal"
+        class="modal"
+    >
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <h2 id="paymentModalTitle">
+                    Input Data
+                </h2>
+
+                <button
+                    class="close-btn"
+                    onclick="closePaymentModal()"
+                >
+                    &times;
+                </button>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+
+                    <label for="paymentDate">
+                        Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="paymentDate"
+                        disabled
+                    >
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label for="paymentNopol">
+                        Nopol
+                    </label>
+
+                    <input
+                        type="text"
+                        id="paymentNopol"
+                        placeholder="Contoh: B 1234 ABC"
+                        oninput="formatNopolInput(this)"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="paymentBBM">
+                        BBM
+                    </label>
+
+                    <input
+                        type="text"
+                        id="paymentBBM"
+                        inputmode="numeric"
+                        placeholder="0"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="paymentKmIn">
+                        KM In
+                    </label>
+
+                    <input
+                        type="text"
+                        id="paymentKmIn"
+                        inputmode="numeric"
+                        placeholder="0"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="paymentKmOut">
+                        KM Out
+                    </label>
+
+                    <input
+                        type="text"
+                        id="paymentKmOut"
+                        inputmode="numeric"
+                        placeholder="0"
+                    >
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label for="paymentKeterangan">
+                        Keterangan
+                    </label>
+
+                    <input
+                        type="text"
+                        id="paymentKeterangan"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-cancel"
+                    onclick="closePaymentModal()"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    class="btn btn-save"
+                    onclick="savePayment()"
+                >
+                    Save
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         LOADING
+    ========================================== -->
+
+    <div
+        id="loading"
+        class="loading"
+    >
+
+        <div class="loading-box">
+            Loading...
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         PDF LIBRARY
+    ========================================== -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+
+    <script>
+
+        /* ==========================================================
+           API URL
+        ========================================================== */
+
+        const API_URL =
+            "https://script.google.com/macros/s/AKfycbyLHHBbcmfyMW0wMiK5RTV6nsDeJgVqo8lq_EsTg-0mOVXTj7JxfSw6f7MJQICDKSnp/exec";
+
+
+        let reportData = [];
+
+        let editingId = null;
+        let updatePreviousKmIn = null;
+
+
+        /* ==========================================================
+           LOAD AWAL
+        ========================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                loadData();
+            }
+        );
+
+
+        /* ==========================================================
+           READ JSON
+        ========================================================== */
+
+        async function readJsonResponse(response) {
+
+            const responseText =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status +
+                    " - " +
+                    (
+                        response.statusText ||
+                        "Request gagal"
+                    )
+                );
+
+            }
+
+
+            try {
+
+                return JSON.parse(
+                    responseText
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Response API bukan JSON:",
+                    responseText
+                );
+
+
+                const preview =
+                    responseText
+                        .replace(/\s+/g, " ")
+                        .substring(0, 300);
+
+
+                throw new Error(
+                    "Server tidak mengembalikan JSON. " +
+                    "Response awal: " +
+                    preview
+                );
+
+            }
+
+        }
+
+
+        /* ==========================================================
+           LOAD DATA
+        ========================================================== */
+
+        async function loadData(autoCarry) {
+
+            if (autoCarry === undefined) {
+
+                autoCarry = true;
+
+            }
+
+
+            showLoading(
+                "Mengambil data dari Spreadsheet..."
+            );
+
+
+            try {
+
+                const url =
+                    API_URL +
+                    "?action=list&_=" +
+                    Date.now();
+
+
+                const response =
+                    await fetch(
+                        url,
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+
+                const result =
+                    await readJsonResponse(
+                        response
+                    );
+
+
+                if (!result.success) {
+
+                    throw new Error(
+                        result.message ||
+                        "Gagal mengambil data"
+                    );
+
+                }
+
+
+                reportData =
+                    Array.isArray(result.data)
+                        ? result.data
+                        : [];
+
+
+                /*
+                 * ======================================================
+                 * TANGGAL TIDAK DIKONVERSI.
+                 *
+                 * Hanya dibandingkan sebagai STRING.
+                 * ======================================================
+                 */
+
+                reportData.sort(
+                    function (a, b) {
+
+                        return String(
+                            b.date || ""
+                        )
+                            .substring(0, 10)
+                            .localeCompare(
+                                String(
+                                    a.date || ""
+                                )
+                                    .substring(0, 10)
+                            );
+
+                    }
+                );
+
+
+                // Otomatis tampilkan seluruh data untuk tanggal hari ini.
+                document.getElementById("searchDate").value =
+                    getTodayDateString();
+
+                renderTable();
+
+
+                /*
+                 * Salin otomatis data TERAKHIR tiap nopol
+                 * ke tanggal hari ini (jika belum ada),
+                 * supaya seluruh data sebelumnya masuk ke
+                 * data hari berikutnya tanpa duplikat.
+                 */
+
+                if (autoCarry) {
+
+                    await autoCarryForwardToday();
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                alert(
+                    "Gagal mengambil data dari Spreadsheet.\n\n" +
+                    error.message
+                );
+
+            } finally {
+
+                hideLoading();
+
+            }
+
+        }
+
+
+        /* ==========================================================
+           AUTO CARRY FORWARD KE HARI INI
+
+           Tujuan:
+           - Seluruh nopol yang punya riwayat data akan otomatis
+             mendapat 1 baris data untuk HARI INI, berisi data
+             TERAKHIR (BBM, KM In, KM Out, Keterangan) dari nopol
+             tersebut.
+
+           - Data lama TETAP ADA (tidak dihapus / tidak ditimpa).
+
+           - TIDAK ADA DUPLIKAT: jika nopol sudah punya baris untuk
+             hari ini, nopol tersebut dilewati.
+
+           - Hanya 1 baris baru per nopol yang dibuat, dengan data
+             KM IN, KM OUT, BBM, dan Keterangan yang PALING TERAKHIR.
+        ========================================================== */
+
+        async function autoCarryForwardToday() {
+
+            const today = getTodayDateString();
+
+            /*
+             * Hanya menyalin DATA TERUPDATE yang ada pada HARI SEBELUMNYA.
+             *
+             * Yang dimaksud data terupdate adalah baris yang mempunyai
+             * tombol Update pada tabel, yaitu baris TERAKHIR untuk kombinasi
+             * Tanggal + Nopol.
+             *
+             * Jadi:
+             * - Data lama pada hari sebelumnya yang tidak mempunyai tombol
+             *   Update TIDAK disalin.
+             * - Jika satu Nopol mempunyai beberapa baris pada hari yang sama,
+             *   hanya baris paling terakhir / tombol Update yang disalin.
+             * - Hanya data dari tepat SATU HARI SEBELUM hari ini yang disalin.
+             * - Jika Nopol sudah mempunyai data hari ini, tidak dibuat duplikat.
+             */
+
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+
+            const yesterday =
+                yesterdayDate.getFullYear() +
+                "-" +
+                String(yesterdayDate.getMonth() + 1).padStart(2, "0") +
+                "-" +
+                String(yesterdayDate.getDate()).padStart(2, "0");
+
+            const nopolsToday = new Set();
+
+            reportData.forEach(function (row) {
+                const key = String(row.nopol || "")
+                    .trim()
+                    .toUpperCase();
+
+                if (!key) {
+                    return;
+                }
+
+                if (
+                    String(row.date || "").substring(0, 10) === today
+                ) {
+                    nopolsToday.add(key);
+                }
+            });
+
+            /*
+             * Ambil hanya baris kemarin yang memang mempunyai tombol Update.
+             * isLatestSameDateNopol() menggunakan logika yang sama dengan
+             * tombol Update pada tabel, sehingga sumber salinan benar-benar
+             * sama dengan baris yang terlihat mempunyai tombol Update.
+             */
+            const sourceRows = reportData.filter(function (row) {
+                return (
+                    String(row.date || "").substring(0, 10) === yesterday &&
+                    isLatestSameDateNopol(row)
+                );
+            });
+
+            const toCreate = [];
+
+            sourceRows.forEach(function (latest) {
+                const key = String(latest.nopol || "")
+                    .trim()
+                    .toUpperCase();
+
+                if (!key) {
+                    return;
+                }
+
+                // Sudah ada data hari ini -> jangan membuat duplikat.
+                if (nopolsToday.has(key)) {
+                    return;
+                }
+
+                toCreate.push({
+                    id: generateId(),
+                    date: today,
+                    nopol: key,
+                    bbm: numberValue(latest.bbm),
+                    kmIn: latest.kmIn || "",
+                    kmOut: latest.kmOut || "",
+                    keterangan: latest.keterangan || ""
+                });
+            });
+
+            if (!toCreate.length) {
+                return;
+            }
+
+            showLoading(
+                "Menyalin data terupdate hari sebelumnya ke hari ini..."
+            );
+
+            try {
+                for (const item of toCreate) {
+                    const response = await fetch(
+                        API_URL,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "text/plain;charset=utf-8"
+                            },
+                            body: JSON.stringify({
+                                action: "add",
+                                data: item
+                            })
+                        }
+                    );
+
+                    const result =
+                        await readJsonResponse(response);
+
+                    if (!result.success) {
+                        console.error(
+                            "Gagal menyalin data nopol " +
+                            item.nopol +
+                            ": " +
+                            (result.message || "-")
+                        );
+                    }
+                }
+
+                /*
+                 * Muat ulang data dari server TANPA memicu carry-forward lagi.
+                 */
+                await loadData(false);
+
+            } catch (error) {
+                console.error(error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        /* ==========================================================
+           SEARCH
+        ========================================================== */
+
+        function applySearch() {
+
+            renderTable();
+
+        }
+
+
+        /* ==========================================================
+           UPPERCASE
+        ========================================================== */
+
+        function formatNopolInput(el) {
+
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+
+            const before = el.value;
+
+            /*
+             * Nopol selalu huruf besar dan seluruh spasi
+             * di dalam text box otomatis dihapus.
+             */
+            el.value = before
+                .toUpperCase()
+                .replace(/\s+/g, "");
+
+            const removedBeforeCursor =
+                (before.substring(0, start).match(/\s/g) || []).length;
+
+            const newStart = Math.max(0, start - removedBeforeCursor);
+
+            el.setSelectionRange(
+                newStart,
+                Math.max(0, end - ((before.substring(0, end).match(/\s/g) || []).length))
+            );
+        }
+
+
+        function toUpperCaseInput(el) {
+
+            const start =
+                el.selectionStart;
+
+            const end =
+                el.selectionEnd;
+
+
+            el.value =
+                el.value.toUpperCase();
+
+
+            el.setSelectionRange(
+                start,
+                end
+            );
+
+        }
+
+
+        /* ==========================================================
+           RENDER TABLE
+        ========================================================== */
+
+        function renderTable() {
+
+            const tbody =
+                document.getElementById(
+                    "reportBody"
+                );
+
+
+            tbody.innerHTML = "";
+
+            /* Reset pola warna setiap render/filter. */
+            window._nopolColorMap = {};
+            window._nopolColorIndex = 0;
+
+            const keyword =
+                document
+                    .getElementById(
+                        "searchNopol"
+                    )
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+
+            const dateFilter =
+                document
+                    .getElementById(
+                        "searchDate"
+                    )
+                    .value;
+
+
+            let filtered =
+                reportData;
+
+
+            if (keyword) {
+
+                filtered =
+                    filtered.filter(
+                        function (row) {
+
+                            return String(
+                                row.nopol || ""
+                            )
+                                .toLowerCase()
+                                .includes(
+                                    keyword
+                                );
+
+                        }
+                    );
+
+            }
+
+
+            if (dateFilter) {
+
+                filtered =
+                    filtered.filter(
+                        function (row) {
+
+                            return String(
+                                row.date || ""
+                            )
+                                .substring(0, 10) ===
+                                dateFilter;
+
+                        }
+                    );
+
+            }
+
+
+            if (!filtered.length) {
+
+                const emptyTr =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                emptyTr.innerHTML =
+                    '<td colspan="7" class="empty">' +
+                    "Tidak ada data ditemukan." +
+                    "</td>";
+
+
+                tbody.appendChild(
+                    emptyTr
+                );
+
+
+                return;
+
+            }
+
+
+            filtered.forEach(
+                function (row, index) {
+
+                    const tr =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    /*
+                     * Warna baris dibuat selang-seling berdasarkan NOPOL,
+                     * bukan berdasarkan nomor baris.
+                     * Semua baris dengan NOPOL yang sama memiliki warna sama.
+                     */
+                    const nopolKey =
+                        String(row.nopol || "")
+                            .trim()
+                            .toUpperCase();
+
+                    if (!window._nopolColorMap) {
+                        window._nopolColorMap = {};
+                        window._nopolColorIndex = 0;
+                    }
+
+                    if (window._nopolColorMap[nopolKey] === undefined) {
+                        window._nopolColorMap[nopolKey] =
+                            window._nopolColorIndex % 2;
+                        window._nopolColorIndex++;
+                    }
+
+                    tr.className =
+                        window._nopolColorMap[nopolKey] === 0
+                            ? "nopol-group-odd"
+                            : "nopol-group-even";
+
+
+                    tr.innerHTML =
+
+                        "<td>" +
+                        formatFullDate(
+                            row.date
+                        ) +
+                        "</td>" +
+
+                        "<td>" +
+                        escapeHtml(
+                            row.nopol || ""
+                        ) +
+                        "</td>" +
+
+                        "<td>" +
+                        numberValue(
+                            row.bbm
+                        ) +
+                        "</td>" +
+
+                        "<td>" +
+                        escapeHtml(
+                            row.kmIn || ""
+                        ) +
+                        "</td>" +
+
+                        "<td>" +
+                        escapeHtml(
+                            row.kmOut || ""
+                        ) +
+                        "</td>" +
+
+                        "<td>" +
+                        escapeHtml(
+                            row.keterangan || ""
+                        ) +
+                        "</td>" +
+
+                        '<td class="action-cell">' +
+                        (isLatestSameDateNopol(row)
+                            ? '<button class="action-btn update-btn" onclick="updateFromRow(\'' + escapeJs(row.id) + '\')">Update</button>'
+                            : '') +
+                        "</td>";
+
+
+                    tbody.appendChild(
+                        tr
+                    );
+
+                }
+            );
+
+        }
+
+
+        function getRecordTimestamp(id) {
+            const match = String(id || '').match(/^\d+/);
+            return match ? Number(match[0]) : 0;
+        }
+
+        function isLatestSameDateNopol(row) {
+            const date = String(row.date || '').substring(0, 10);
+            const nopol = String(row.nopol || '').trim().toUpperCase();
+            let latest = row;
+            reportData.forEach(function(item) {
+                if (String(item.date || '').substring(0, 10) === date &&
+                    String(item.nopol || '').trim().toUpperCase() === nopol &&
+                    getRecordTimestamp(item.id) > getRecordTimestamp(latest.id)) {
+                    latest = item;
+                }
+            });
+            return String(latest.id) === String(row.id);
+        }
+
+
+        /* ==========================================================
+           OPEN MODAL
+        ========================================================== */
+
+        function openPaymentModal(
+            id = null
+        ) {
+
+            editingId = id;
+
+            clearPaymentForm();
+
+
+            if (id) {
+
+                const row =
+                    reportData.find(
+                        function (item) {
+
+                            return String(
+                                item.id
+                            ) === String(id);
+
+                        }
+                    );
+
+
+                if (!row) {
+
+                    alert(
+                        "Data tidak ditemukan."
+                    );
+
+                    return;
+
+                }
+
+
+                document.getElementById(
+                    "paymentModalTitle"
+                ).textContent =
+                    "Edit Data";
+
+
+                /*
+                 * Tanggal langsung diberikan
+                 * ke input.
+                 *
+                 * TIDAK memakai new Date().
+                 */
+
+                document.getElementById(
+                    "paymentDate"
+                ).value =
+                    getTodayDateString();
+
+
+                document.getElementById(
+                    "paymentNopol"
+                ).value =
+                    String(
+                        row.nopol || ""
+                    ).toUpperCase();
+
+
+                document.getElementById(
+                    "paymentBBM"
+                ).value =
+                    numberValue(
+                        row.bbm
+                    ) || "";
+
+
+                document.getElementById(
+                    "paymentKmIn"
+                ).value =
+                    row.kmIn || "";
+
+
+                document.getElementById(
+                    "paymentKmOut"
+                ).value =
+                    row.kmOut || "";
+
+
+                document.getElementById(
+                    "paymentKeterangan"
+                ).value =
+                    row.keterangan || "";
+
+            } else {
+
+                document.getElementById(
+                    "paymentModalTitle"
+                ).textContent =
+                    "Input Data";
+
+                /* Tanggal Input Data selalu tanggal hari ini
+                   dan tidak dapat diubah oleh user. */
+                document.getElementById(
+                    "paymentDate"
+                ).value =
+                    getTodayDateString();
+
+            }
+
+
+            document
+                .getElementById(
+                    "paymentModal"
+                )
+                .classList
+                .add("show");
+
+        }
+
+
+        /* ==========================================================
+           CLOSE MODAL
+        ========================================================== */
+
+        function closePaymentModal() {
+
+            document
+                .getElementById(
+                    "paymentModal"
+                )
+                .classList
+                .remove("show");
+
+
+            editingId = null;
+
+        }
+
+
+        /* ==========================================================
+           CLEAR FORM
+        ========================================================== */
+
+        function clearPaymentForm() {
+
+            [
+                "paymentDate",
+                "paymentNopol",
+                "paymentBBM",
+                "paymentKmIn",
+                "paymentKmOut",
+                "paymentKeterangan"
+            ].forEach(
+                function (id) {
+
+                    document.getElementById(
+                        id
+                    ).value = "";
+
+                }
+            );
+
+        }
+
+
+        /* ==========================================================
+           SAVE
+        ========================================================== */
+
+        async function savePayment() {
+
+            const dateStr =
+                document.getElementById(
+                    "paymentDate"
+                ).value;
+
+
+            if (!dateStr) {
+
+                alert(
+                    "Tanggal harus diisi."
+                );
+
+                return;
+
+            }
+
+
+            const nopol =
+                document.getElementById(
+                    "paymentNopol"
+                )
+                    .value
+                    .trim()
+                    .toUpperCase();
+
+
+            if (!nopol) {
+
+                alert(
+                    "Nopol harus diisi."
+                );
+
+                return;
+
+            }
+
+
+            const kmOutCheck =
+                document.getElementById(
+                    "paymentKmOut"
+                )
+                    .value
+                    .trim();
+
+
+            const kmInCheck =
+                document.getElementById(
+                    "paymentKmIn"
+                )
+                    .value
+                    .trim();
+
+
+            /*
+             * Apabila KM Out sudah terisi,
+             * KM In wajib diisi terlebih
+             * dahulu.
+             */
+
+            if (
+                kmOutCheck &&
+                !kmInCheck
+            ) {
+
+                alert(
+                    "KM Out sudah terisi. " +
+                    "KM In harus diisi terlebih dahulu."
+                );
+
+                document.getElementById(
+                    "paymentKmIn"
+                ).focus();
+
+                return;
+
+            }
+
+
+            /*
+             * Validasi khusus pada card Update:
+             * KM In baru tidak boleh lebih kecil dari
+             * KM In sebelum data di-update.
+             */
+            if (
+                updatePreviousKmIn !== null &&
+                updatePreviousKmIn !== ""
+            ) {
+
+                const previousKmIn =
+                    Number(updatePreviousKmIn);
+
+                const currentKmIn =
+                    Number(kmInCheck);
+
+                if (
+                    !kmInCheck ||
+                    !Number.isFinite(currentKmIn) ||
+                    currentKmIn < previousKmIn
+                ) {
+
+                    alert(
+                        "KM In baru harus sama atau lebih besar dari KM In sebelum di-update (" +
+                        previousKmIn +
+                        ")."
+                    );
+
+                    document.getElementById(
+                        "paymentKmIn"
+                    ).focus();
+
+                    return;
+
+                }
+            }
+
+
+            const wasEditing =
+                !!editingId;
+
+
+            const data = {
+
+                id:
+                    editingId ||
+                    generateId(),
+
+                /*
+                 * Input type=date memberikan
+                 * string YYYY-MM-DD.
+                 *
+                 * String ini dikirim langsung.
+                 */
+
+                date:
+                    String(dateStr)
+                        .substring(0, 10),
+
+                nopol:
+                    nopol,
+
+                bbm:
+                    numberValue(
+                        document.getElementById(
+                            "paymentBBM"
+                        ).value
+                    ),
+
+                kmIn:
+                    document.getElementById(
+                        "paymentKmIn"
+                    ).value.trim(),
+
+                kmOut:
+                    document.getElementById(
+                        "paymentKmOut"
+                    ).value.trim(),
+
+                keterangan:
+                    document.getElementById(
+                        "paymentKeterangan"
+                    ).value.trim()
+
+            };
+
+
+            if (
+                !confirm(
+                    "Data sudah benar?"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            showLoading(
+                "Menyimpan data..."
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        API_URL,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "text/plain;charset=utf-8"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    action:
+                                        wasEditing
+                                            ? "update"
+                                            : "add",
+
+                                    data:
+                                        data
+                                })
+                        }
+                    );
+
+
+                const result =
+                    await readJsonResponse(
+                        response
+                    );
+
+
+                if (!result.success) {
+
+                    throw new Error(
+                        result.message ||
+                        "Gagal menyimpan"
+                    );
+
+                }
+
+
+                closePaymentModal();
+
+                await loadData();
+
+
+                alert(
+                    wasEditing
+                        ? "Data berhasil diperbarui."
+                        : "Data berhasil disimpan."
+                );
+
+                updatePreviousKmIn = null;
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                alert(
+                    "Gagal menyimpan data.\n\n" +
+                    error.message
+                );
+
+            } finally {
+
+                hideLoading();
+
+            }
+
+        }
+
+
+        /* ==========================================================
+           UPDATE (SALINAN DATA BERDASARKAN NOPOL)
+
+           Tombol "Update" pada kolom Action.
+
+           - Mencari data TERAKHIR untuk nopol yang sama dari
+             SELURUH hari sebelumnya (bukan hanya baris yang diklik).
+
+           - Menampilkan card input dan mengisi seluruh text box
+             (Nopol, BBM, KM In, KM Out, Keterangan) dari data
+             tersebut.
+
+           - Apabila data sebelumnya memiliki KM Out, maka text box
+             KM In DIKOSONGKAN dan wajib diisi ulang oleh user
+             (divalidasi di savePayment()).
+
+           - Saat disimpan, data ini dianggap data BARU (editingId
+             = null), sehingga data lama tetap ada di tabel dan
+             data hasil update menjadi acuan salinan berikutnya.
+        ========================================================== */
+
+        function updateFromRow(id) {
+
+            const row =
+                reportData.find(
+                    function (item) {
+
+                        return String(
+                            item.id
+                        ) === String(id);
+
+                    }
+                );
+
+
+            if (!row) {
+
+                alert(
+                    "Data tidak ditemukan."
+                );
+
+                return;
+
+            }
+
+
+            openUpdateModal(
+                row.nopol
+            );
+
+        }
+
+
+        function openUpdateModal(nopol) {
+
+            const nopolUpper =
+                String(nopol || "")
+                    .trim()
+                    .toUpperCase();
+
+
+            if (!nopolUpper) {
+
+                alert(
+                    "Nopol tidak valid."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Ambil seluruh riwayat nopol ini
+             * dari seluruh hari sebelumnya.
+             */
+
+            const history =
+                reportData.filter(
+                    function (item) {
+
+                        return String(
+                            item.nopol || ""
+                        )
+                            .trim()
+                            .toUpperCase() ===
+                            nopolUpper;
+
+                    }
+                );
+
+
+            if (!history.length) {
+
+                alert(
+                    "Data sebelumnya untuk nopol " +
+                    nopolUpper +
+                    " tidak ditemukan."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * reportData sudah terurut dari
+             * tanggal terbaru -> terlama,
+             * sehingga item pertama adalah
+             * data TERAKHIR untuk nopol ini.
+             */
+
+            const latest =
+                history[0];
+
+
+            editingId = null;
+
+            /* Simpan KM In dari data sebelum update untuk validasi Save. */
+            updatePreviousKmIn =
+                latest.kmIn === undefined ||
+                latest.kmIn === null
+                    ? ""
+                    : String(latest.kmIn).trim();
+
+            clearPaymentForm();
+
+
+            document.getElementById(
+                "paymentModalTitle"
+            ).textContent =
+                "Update Data (Salinan " +
+                nopolUpper +
+                ")";
+
+
+            document.getElementById(
+                "paymentDate"
+            ).value =
+                getTodayDateString();
+
+
+            document.getElementById(
+                "paymentNopol"
+            ).value =
+                nopolUpper;
+
+
+            document.getElementById(
+                "paymentBBM"
+            ).value =
+                numberValue(
+                    latest.bbm
+                ) || "";
+
+
+            /*
+             * Seluruh data terakhir (BBM, KM In,
+             * KM Out, Keterangan) disalin apa
+             * adanya ke form.
+             */
+
+            document.getElementById(
+                "paymentKmIn"
+            ).value =
+                latest.kmIn || "";
+
+
+            document.getElementById(
+                "paymentKmOut"
+            ).value =
+                latest.kmOut || "";
+
+
+            document.getElementById(
+                "paymentKeterangan"
+            ).value =
+                latest.keterangan || "";
+
+
+            document
+                .getElementById(
+                    "paymentModal"
+                )
+                .classList
+                .add("show");
+
+        }
+
+
+        /* ==========================================================
+           PRINT / PDF
+        ========================================================== */
+
+        async function triggerPrint() {
+
+            const keyword =
+                document
+                    .getElementById(
+                        "searchNopol"
+                    )
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+
+            const dateFilter =
+                document
+                    .getElementById(
+                        "searchDate"
+                    )
+                    .value;
+
+
+            let data =
+                reportData;
+
+
+            if (keyword) {
+
+                data =
+                    data.filter(
+                        function (row) {
+
+                            return String(
+                                row.nopol || ""
+                            )
+                                .toLowerCase()
+                                .includes(
+                                    keyword
+                                );
+
+                        }
+                    );
+
+            }
+
+
+            if (dateFilter) {
+
+                data =
+                    data.filter(
+                        function (row) {
+
+                            return String(
+                                row.date || ""
+                            )
+                                .substring(0, 10) ===
+                                dateFilter;
+
+                        }
+                    );
+
+            }
+
+
+            showLoading(
+                "Membuat PDF..."
+            );
+
+
+            try {
+
+                const {
+                    jsPDF
+                } =
+                    window.jspdf;
+
+
+                const doc =
+                    new jsPDF({
+                        orientation:
+                            "portrait",
+
+                        unit:
+                            "mm",
+
+                        format:
+                            "a4"
+                    });
+
+
+                /*
+                 * Semua teks PDF hitam.
+                 */
+
+                doc.setTextColor(
+                    0,
+                    0,
+                    0
+                );
+
+
+                const pageWidth =
+                    doc.internal.pageSize
+                        .getWidth();
+
+
+                doc.setFont(
+                    undefined,
+                    "bold"
+                );
+
+
+                doc.setFontSize(
+                    14
+                );
+
+
+                const title =
+                    "DATA HARIAN KENDARAAN POOL";
+
+
+                doc.text(
+                    title,
+                    pageWidth / 2,
+                    12,
+                    {
+                        align: "center"
+                    }
+                );
+
+
+                const titleWidth =
+                    doc.getTextWidth(
+                        title
+                    );
+
+
+                doc.setLineWidth(
+                    0.3
+                );
+
+
+                doc.line(
+                    pageWidth / 2 -
+                        titleWidth / 2,
+
+                    13.3,
+
+                    pageWidth / 2 +
+                        titleWidth / 2,
+
+                    13.3
+                );
+
+                /*
+                 * PERIODE TANGGAL TERPILIH
+                 */
+                doc.setFont(
+                    undefined,
+                    "normal"
+                );
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+
+                let periodeText = "Periode";
+
+                if (dateFilter) {
+                    periodeText += " " + formatFullDate(dateFilter);
+                }
+
+                doc.text(
+                    periodeText,
+                    pageWidth / 2,
+                    18,
+                    {
+                        align: "center"
+                    }
+                );
+
+
+                /*
+                 * ======================================================
+                 * BODY PDF
+                 *
+                 * formatFullDate() tidak memakai
+                 * new Date().
+                 * ======================================================
+                 */
+
+                const body =
+                    data.length
+
+                        ? data.map(
+                            function (row) {
+
+                                return [
+
+                                    formatFullDate(
+                                        row.date
+                                    ),
+
+                                    row.nopol || "",
+
+                                    numberValue(
+                                        row.bbm
+                                    ),
+
+                                    row.kmIn || "",
+
+                                    row.kmOut || "",
+
+                                    row.keterangan || ""
+
+                                ];
+
+                            }
+                        )
+
+                        : [
+
+                            [
+                                "-",
+                                "-",
+                                "-",
+                                "-",
+                                "-",
+                                "Belum ada data"
+                            ]
+
+                        ];
+
+
+                // Warna PDF mengikuti kelompok Nopol seperti tabel aplikasi.
+                const pdfNopolColorMap = {};
+                let pdfNopolColorIndex = 0;
+
+                data.forEach(function (row) {
+                    const nopolKey = String(row.nopol || "")
+                        .trim()
+                        .toUpperCase();
+
+                    if (pdfNopolColorMap[nopolKey] === undefined) {
+                        pdfNopolColorMap[nopolKey] = pdfNopolColorIndex % 2;
+                        pdfNopolColorIndex++;
+                    }
+                });
+
+                doc.autoTable({
+
+                    startY: 25,
+
+                    theme: "grid",
+
+                    styles: {
+
+                        fontSize: 9,
+
+                        cellPadding: 2,
+
+                        lineColor:
+                            [51, 51, 51],
+
+                        lineWidth:
+                            0.15,
+
+                        textColor:
+                            [0, 0, 0],
+
+                        halign:
+                            "center",
+
+                        valign:
+                            "middle"
+
+                    },
+
+                    headStyles: {
+
+                        fillColor:
+                            [255, 255, 0],
+
+                        textColor:
+                            [0, 0, 0],
+
+                        fontStyle:
+                            "bold",
+
+                        halign:
+                            "center"
+
+                    },
+
+                    head: [
+
+                        [
+                            "Tanggal",
+                            "Nopol",
+                            "BBM",
+                            "KM In",
+                            "KM Out",
+                            "Keterangan"
+                        ]
+
+                    ],
+
+                    body:
+                        body,
+
+                    columnStyles: {
+
+                        2: {
+                            halign: "center"
+                        }
+
+                    },
+
+                    didParseCell: function (hookData) {
+                        if (hookData.section === "body" && data.length) {
+                            const row = data[hookData.row.index];
+                            const nopolKey = String(row.nopol || "")
+                                .trim()
+                                .toUpperCase();
+
+                            hookData.cell.styles.fillColor =
+                                pdfNopolColorMap[nopolKey] === 1
+                                    ? [225, 225, 225]
+                                    : [255, 255, 255];
+                        }
+                    }
+
+                });
+
+
+                /*
+                 * ======================================================
+                 * NOMOR HALAMAN
+                 * ======================================================
+                 */
+
+                const totalPages =
+                    doc.getNumberOfPages();
+
+
+                for (
+                    let pageNum = 1;
+                    pageNum <= totalPages;
+                    pageNum++
+                ) {
+
+                    doc.setPage(
+                        pageNum
+                    );
+
+
+                    doc.setFontSize(
+                        8
+                    );
+
+
+                    doc.setTextColor(
+                        0,
+                        0,
+                        0
+                    );
+
+
+                    doc.text(
+
+                        pageNum +
+                        "/" +
+                        totalPages,
+
+                        pageWidth / 2,
+
+                        doc.internal.pageSize
+                            .getHeight() - 4,
+
+                        {
+                            align:
+                                "center"
+                        }
+
+                    );
+
+                }
+
+
+                doc.save(
+                    "data-harian-kendaraan-pool.pdf"
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                alert(
+                    "Gagal membuat PDF.\n\n" +
+                    error.message
+                );
+
+            } finally {
+
+                hideLoading();
+
+            }
+
+        }
+
+
+        /* ==========================================================
+           GET DATE ONLY
+
+           TIDAK MENGGUNAKAN new Date().
+
+           Contoh:
+
+           2026-08-31
+           2026-08-31T00:00:00
+           2026-08-31 00:00:00
+
+           semuanya menjadi:
+
+           2026-08-31
+        ========================================================== */
+
+        function getTodayDateString() {
+
+            const now = new Date();
+
+            const year =
+                now.getFullYear();
+
+            const month =
+                String(now.getMonth() + 1).padStart(2, "0");
+
+            const day =
+                String(now.getDate()).padStart(2, "0");
+
+            return year + "-" + month + "-" + day;
+
+        }
+
+
+        function getDateOnly(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+
+                return "";
+
+            }
+
+
+            const str =
+                String(value).trim();
+
+
+            const match =
+                str.match(
+                    /^(\d{4})-(\d{2})-(\d{2})/
+                );
+
+
+            if (match) {
+
+                return (
+                    match[1] +
+                    "-" +
+                    match[2] +
+                    "-" +
+                    match[3]
+                );
+
+            }
+
+
+            return str;
+
+        }
+
+
+        /* ==========================================================
+           FORMAT DATE
+
+           TIDAK ADA new Date().
+
+           2026-08-31
+
+           ↓
+
+           31 Agustus 2026
+        ========================================================== */
+
+        function formatFullDate(value) {
+
+            const date =
+                getDateOnly(value);
+
+
+            if (!date) {
+
+                return "-";
+
+            }
+
+
+            const match =
+                date.match(
+                    /^(\d{4})-(\d{2})-(\d{2})$/
+                );
+
+
+            if (!match) {
+
+                return escapeHtml(
+                    date
+                );
+
+            }
+
+
+            const year =
+                match[1];
+
+
+            const month =
+                parseInt(
+                    match[2],
+                    10
+                );
+
+
+            const day =
+                parseInt(
+                    match[3],
+                    10
+                );
+
+
+            const months = [
+
+                "Januari",
+                "Februari",
+                "Maret",
+                "April",
+                "Mei",
+                "Juni",
+                "Juli",
+                "Agustus",
+                "September",
+                "Oktober",
+                "November",
+                "Desember"
+
+            ];
+
+
+            if (
+                month < 1 ||
+                month > 12
+            ) {
+
+                return escapeHtml(
+                    date
+                );
+
+            }
+
+
+            return (
+
+                day +
+                " " +
+                months[
+                    month - 1
+                ] +
+                " " +
+                year
+
+            );
+
+        }
+
+
+        /* ==========================================================
+           NUMBER
+        ========================================================== */
+
+        function numberValue(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+
+                return 0;
+
+            }
+
+
+            if (
+                typeof value === "number"
+            ) {
+
+                return value;
+
+            }
+
+
+            return Number(
+
+                String(value)
+                    .replace(
+                        /[^\d]/g,
+                        ""
+                    )
+
+            ) || 0;
+
+        }
+
+
+        /* ==========================================================
+           GENERATE ID
+        ========================================================== */
+
+        function generateId() {
+
+            return (
+
+                Date.now().toString() +
+
+                Math.random()
+                    .toString(36)
+                    .substring(2, 8)
+
+            );
+
+        }
+
+
+        /* ==========================================================
+           ESCAPE HTML
+        ========================================================== */
+
+        function escapeHtml(value) {
+
+            return String(
+                value || ""
+            )
+
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /* ==========================================================
+           ESCAPE JAVASCRIPT
+        ========================================================== */
+
+        function escapeJs(value) {
+
+            return String(
+                value || ""
+            )
+
+                .replace(
+                    /\\/g,
+                    "\\\\"
+                )
+
+                .replace(
+                    /'/g,
+                    "\\'"
+                )
+
+                .replace(
+                    /"/g,
+                    '\\"'
+                )
+
+                .replace(
+                    /\r/g,
+                    "\\r"
+                )
+
+                .replace(
+                    /\n/g,
+                    "\\n"
+                );
+
+        }
+
+
+        /* ==========================================================
+           LOADING
+        ========================================================== */
+
+        function showLoading(text) {
+
+            document.querySelector(
+                ".loading-box"
+            ).textContent =
+                text ||
+                "Loading...";
+
+
+            document
+                .getElementById(
+                    "loading"
+                )
+                .classList
+                .add("show");
+
+        }
+
+
+        function hideLoading() {
+
+            document
+                .getElementById(
+                    "loading"
+                )
+                .classList
+                .remove("show");
+
+        }
+
+
+        /* ==========================================================
+           CLICK OUTSIDE MODAL
+        ========================================================== */
+
+        document
+            .getElementById(
+                "paymentModal"
+            )
+            .addEventListener(
+                "click",
+                function (e) {
+
+                    if (
+                        e.target === this
+                    ) {
+
+                        closePaymentModal();
+
+                    }
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>
